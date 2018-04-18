@@ -5,6 +5,14 @@ import { CellularAutomaton } from './cellular-automaton';
 document.addEventListener('DOMContentLoaded', function(event) {
     const body = document.querySelector('body');
 
+    const queryParams = new URLSearchParams(window.location.search.slice(1));
+    const ruleSet = parseInt(queryParams.get('rule') || '222');
+    const binaryRuleSet = ruleSet.toString(2).split('').map(x => parseInt(x)).reverse();
+
+    while(binaryRuleSet.length < 8) {
+        binaryRuleSet.push(0);
+    }
+
     const canvas = document.createElement('canvas');
     canvas.setAttribute('id', 'game');
     canvas.setAttribute('width', '1000');
@@ -12,14 +20,18 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
     const blockSize = 2;
 
-    body.appendChild(canvas);
+    body.appendChild(canvas);   
 
-    const classOneRuleset = [0, 1, 1, 1, 1, 0, 1, 1]; // uniformity
-    const classTwoRuleset = [0, 1, 1, 1, 1, 1, 0, 1]; // repetition
-    const classThreeRuleset = [0, 1, 1, 1, 1, 0, 0, 0]; // random
-    const classFourRuleset = [0, 1, 1, 1, 0, 1, 1, 0]; // complexity
+    const classOneRuleset = [0, 1, 1, 1, 1, 0, 1, 1]; // uniformity (rule 222)
+    const classTwoRuleset = [0, 1, 1, 1, 1, 1, 0, 1]; // repetition (rule 190)
+    const classThreeRuleset = [0, 1, 1, 1, 1, 0, 0, 0]; // random (rule 30)
+    const classFourRuleset = [0, 1, 1, 1, 0, 1, 1, 0]; // complexity (rule 110)
+    console.log(binaryRuleSet, classThreeRuleset)
 
-    const ca = new CellularAutomaton(canvas.width/blockSize, classThreeRuleset);
+    const ca = new CellularAutomaton(canvas.width/blockSize, binaryRuleSet);
+    //const ca = new CellularAutomaton(canvas.width/blockSize, classTwoRuleset);
+    //const ca = new CellularAutomaton(canvas.width/blockSize, classThreeRuleset);
+    //const ca = new CellularAutomaton(canvas.width/blockSize, classFourRuleset);
 
     const context = canvas.getContext('2d');
 
@@ -38,7 +50,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
         ca.generate();
         currentlyRenderingRow += blockSize;
         if (currentlyRenderingRow >= canvas.height) {
-            currentlyRenderingRow = 0;
+            // currentlyRenderingRow = 0;
+            return;
         }
         window.requestAnimationFrame(renderGeneration);
     };
